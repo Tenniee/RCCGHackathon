@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ridesAPI } from "../api";
-import RideCard from "../components/rides/RideCard";
-import BottomNav from "../components/layout/BottomNav";
+import RideCard from "../components/rides/rideCard";
+import BottomNav from "../components/layout/bottomNav";
 import Avatar from "../components/common/Avatar";
  
 // ─── Rider home — browse the ride feed ───────────────────────────────────────

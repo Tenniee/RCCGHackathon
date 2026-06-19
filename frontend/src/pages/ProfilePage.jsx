@@ -6,7 +6,7 @@ import { usersAPI } from "../api";
 import { apiError } from "../utils/helpers";
 import Avatar from "../components/common/avatar";
 import { Stars } from "../components/common/stars";
-import TopBar from "../components/layout/TopBar";
+import TopBar from "../components/layout/topBar";
 import BottomNav from "../components/layout/BottomNav";
  
 export default function ProfilePage() {

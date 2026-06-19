@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { authAPI } from "../api";
 import { apiError } from "../utils/helpers";
-import UploadBox from "../components/common/UploadBox";
+import UploadBox from "../components/common/uploadBox";
  
 const STEPS = ["Upload docs", "Pending review", "Approved"];
  
