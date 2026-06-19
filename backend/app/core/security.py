@@ -11,14 +11,7 @@ from app.core.database import get_db
  
 settings = get_settings()
  
-# ── Swagger UI "Authorize" button ─────────────────────────────────────────────
-# HTTPBearer shows a single "Token" field in the Swagger lock dialog.
-# No hardcoded "username/password" — just paste your JWT and click Authorize.
-# Your actual login is still POST /auth/login with JSON { phone, password }.
 http_bearer = HTTPBearer(auto_error=False)
- 
-# OAuth2PasswordBearer is still declared so FastAPI knows the tokenUrl,
-# but we use http_bearer as the actual Depends() in route guards.
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token", auto_error=False)
  
  
@@ -38,10 +31,6 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 def _extract_token(
     bearer: Optional[HTTPAuthorizationCredentials] = Depends(http_bearer),
 ) -> str:
-    """
-    Pulls the raw JWT string out of the Authorization: Bearer <token> header.
-    Raises 401 if no token is present.
-    """
     if bearer is None or not bearer.credentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -51,14 +40,13 @@ def _extract_token(
     return bearer.credentials
  
  
-# ─── Current-user dependency ──────────────────────────────────────────────────
+# ─── Current user ─────────────────────────────────────────────────────────────
  
 def get_current_user(
     token: str = Depends(_extract_token),
     db: Session = Depends(get_db),
 ):
     from app.models.user import User
- 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -78,16 +66,18 @@ def get_current_user(
     return user
  
  
+# ─── PROTOTYPE: verification skipped ─────────────────────────────────────────
+# In production, restore the is_verified check:
+#   if not current_user.is_verified: raise HTTPException(403, "Pending verification")
+ 
 def get_current_verified_user(current_user=Depends(get_current_user)):
-    if not current_user.is_verified:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Account pending verification — wait for admin approval.",
-        )
+    # Prototype — all logged-in users treated as verified
     return current_user
  
  
-def get_current_driver(current_user=Depends(get_current_verified_user)):
+def get_current_driver(current_user=Depends(get_current_user)):
+    # Prototype — only role check, no verification check
+    # In production add: if not current_user.is_verified: raise 403
     if current_user.role != "driver":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
