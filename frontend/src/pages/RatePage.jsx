@@ -4,8 +4,8 @@ import { ratingsAPI, ridesAPI } from "../api";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { apiError } from "../utils/helpers";
-import { StarPicker } from "../components/common/Stars";
-import TopBar from "../components/layout/TopBar";
+import { StarPicker } from "../components/common/stars";
+import TopBar from "../components/layout/topbar";
  
 const TAGS = ["Punctual", "Safe driver", "Friendly", "Clean car", "Good route", "Great conversation"];
  

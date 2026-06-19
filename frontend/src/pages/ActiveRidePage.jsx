@@ -5,7 +5,7 @@ import { useToast } from "../context/ToastContext";
 import { apiError } from "../utils/helpers";
 import Avatar from "../components/common/avatar";
 import SOSButton from "../components/common/SOSButton";
-import TopBar from "../components/layout/topBar";
+import TopBar from "../components/layout/topbar";
  
 export default function ActiveRidePage() {
   const { requestId }     = useParams();
