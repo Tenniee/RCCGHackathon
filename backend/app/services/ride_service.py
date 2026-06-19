@@ -263,3 +263,42 @@ def complete_ride(db: Session, driver: User, ride_id: int) -> Ride:
     db.commit()
     db.refresh(ride)
     return ride
+ 
+ 
+# ─── Start a ride ─────────────────────────────────────────────────────────────
+ 
+def start_ride(db: Session, driver: User, ride_id: int) -> Ride:
+    ride = db.query(Ride).filter(Ride.id == ride_id, Ride.driver_id == driver.id).first()
+    if not ride:
+        raise HTTPException(status_code=404, detail="Ride not found.")
+    if ride.status not in (RideStatus.open, RideStatus.full):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Cannot start a ride with status '{ride.status}'.",
+        )
+    ride.status = RideStatus.in_progress
+    db.commit()
+    db.refresh(ride)
+    return ride
+ 
+ 
+# ─── Cancel a posted ride (driver only) ──────────────────────────────────────
+ 
+def cancel_posted_ride(db: Session, driver: User, ride_id: int) -> Ride:
+    ride = db.query(Ride).filter(Ride.id == ride_id, Ride.driver_id == driver.id).first()
+    if not ride:
+        raise HTTPException(status_code=404, detail="Ride not found.")
+    if ride.status in (RideStatus.completed, RideStatus.cancelled):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Ride is already '{ride.status}' and cannot be cancelled.",
+        )
+    # Decline all pending requests so riders get notified
+    db.query(RideRequest).filter(
+        RideRequest.ride_id == ride_id,
+        RideRequest.status == RequestStatus.pending,
+    ).update({"status": RequestStatus.declined})
+    ride.status = RideStatus.cancelled
+    db.commit()
+    db.refresh(ride)
+    return ride
