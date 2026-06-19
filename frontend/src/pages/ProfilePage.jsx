@@ -10,35 +10,49 @@ import TopBar from "../components/layout/topbar";
 import BottomNav from "../components/layout/bottomNav";
  
 export default function ProfilePage() {
-  const navigate          = useNavigate();
+  const navigate                     = useNavigate();
   const { user, updateUser, logout } = useAuth();
-  const { showToast }     = useToast();
+  const { showToast }                = useToast();
  
-  const [editingCar, setEditingCar]     = useState(false);
-  const [editingSOS, setEditingSOS]     = useState(false);
-  const [carForm, setCarForm]           = useState({
+  const [editingCar, setEditingCar] = useState(false);
+  const [editingSOS, setEditingSOS] = useState(false);
+  const [saving, setSaving]         = useState(false);
+ 
+  // Car form — always seeds from live user context so it stays in sync
+  const [carForm, setCarForm] = useState({
     car_make:   user?.car_make   || "",
     car_model:  user?.car_model  || "",
     car_year:   user?.car_year   || "",
     car_colour: user?.car_colour || "",
     car_plate:  user?.car_plate  || "",
   });
+ 
   const [sosForm, setSosForm] = useState({
     name:  user?.emergency_contact_name  || "",
     phone: user?.emergency_contact_phone || "",
   });
-  const [saving, setSaving] = useState(false);
  
-  function setCar(field)  { return (e) => setCarForm((f) => ({ ...f, [field]: e.target.value })); }
-  function setSOS(field)  { return (e) => setSosForm((f) => ({ ...f, [field]: e.target.value })); }
+  function setCar(field) { return (e) => setCarForm((f) => ({ ...f, [field]: e.target.value })); }
+  function setSOS(field) { return (e) => setSosForm((f) => ({ ...f, [field]: e.target.value })); }
  
   async function saveCar() {
     setSaving(true);
     try {
-      const res = await usersAPI.updateCarDetails({ ...carForm, car_year: Number(carForm.car_year) });
+      const res = await usersAPI.updateCarDetails({
+        ...carForm,
+        car_year: carForm.car_year ? Number(carForm.car_year) : null,
+      });
+      // Update both the global auth context AND local form state
       updateUser(res.data);
+      setCarForm({
+        car_make:   res.data.car_make   || "",
+        car_model:  res.data.car_model  || "",
+        car_year:   res.data.car_year   || "",
+        car_colour: res.data.car_colour || "",
+        car_plate:  res.data.car_plate  || "",
+      });
       setEditingCar(false);
-      showToast("Car details saved.");
+      showToast("Car details saved ✓");
     } catch (err) {
       showToast(apiError(err), "error");
     } finally {
@@ -51,14 +65,20 @@ export default function ProfilePage() {
     try {
       const res = await usersAPI.updateEmergencyContact(sosForm);
       updateUser(res.data);
+      setSosForm({
+        name:  res.data.emergency_contact_name  || "",
+        phone: res.data.emergency_contact_phone || "",
+      });
       setEditingSOS(false);
-      showToast("Emergency contact saved.");
+      showToast("Emergency contact saved ✓");
     } catch (err) {
       showToast(apiError(err), "error");
     } finally {
       setSaving(false);
     }
   }
+ 
+  const hasCarDetails = user?.car_make && user?.car_plate;
  
   return (
     <>
@@ -69,12 +89,11 @@ export default function ProfilePage() {
           <h1 className="text-white font-black text-[20px]">{user?.full_name}</h1>
           {user?.parish && <p className="text-white/70 text-[13px] mt-0.5">{user.parish}</p>}
           <div className="flex items-center justify-center gap-2 mt-2">
-            {user?.is_verified
-              ? <span className="badge badge-green bg-white/20 text-white border-0">✓ Verified member</span>
-              : <span className="badge badge-gray bg-white/20 text-white/60 border-0">⏳ Pending verification</span>
-            }
+            <span className="badge bg-white/20 text-white border-0">
+              {user?.role === "driver" ? "🚗 Driver" : "🙋 Rider"}
+            </span>
           </div>
-          {/* Rating row */}
+          {/* Stats */}
           <div className="flex items-center justify-center gap-4 mt-4">
             <div className="text-center">
               <p className="text-white font-black text-[20px]">{user?.total_rides || 0}</p>
@@ -96,45 +115,39 @@ export default function ProfilePage() {
         </div>
  
         <div className="px-4 -mt-3">
-          {/* Emergency contact */}
-          <div className="card p-4 mb-4">
-            <div className="flex items-center justify-between mb-3">
-              <p className="section-label mb-0">🆘 Emergency contact</p>
-              <button onClick={() => setEditingSOS(!editingSOS)}
-                className="text-green-700 text-[12px] font-bold">{editingSOS ? "Cancel" : "Edit"}</button>
-            </div>
-            {editingSOS ? (
-              <div className="space-y-3">
-                <div>
-                  <label className="label">Contact name</label>
-                  <input className="input" placeholder="e.g. Mum" value={sosForm.name} onChange={setSOS("name")} />
-                </div>
-                <div>
-                  <label className="label">Phone number</label>
-                  <input className="input" type="tel" placeholder="08023456789" value={sosForm.phone} onChange={setSOS("phone")} />
-                </div>
-                <button onClick={saveSOS} disabled={saving} className="btn-primary">{saving ? "Saving…" : "Save contact"}</button>
-              </div>
-            ) : user?.emergency_contact_name ? (
-              <div>
-                <p className="font-bold text-[14px]">{user.emergency_contact_name}</p>
-                <p className="text-[13px] text-gray-500">{user.emergency_contact_phone}</p>
-              </div>
-            ) : (
-              <p className="text-[13px] text-gray-400">
-                No emergency contact set. Add one so the SOS button can alert someone you trust during a ride.
-              </p>
-            )}
-          </div>
  
-          {/* Car details (driver only) */}
+          {/* Car details — driver only */}
           {user?.role === "driver" && (
             <div className="card p-4 mb-4">
               <div className="flex items-center justify-between mb-3">
-                <p className="section-label mb-0">🚗 Car details</p>
-                <button onClick={() => setEditingCar(!editingCar)}
-                  className="text-green-700 text-[12px] font-bold">{editingCar ? "Cancel" : "Edit"}</button>
+                <div>
+                  <p className="section-label mb-0">🚗 Car details</p>
+                  {!hasCarDetails && (
+                    <p className="text-[11px] text-red-500 font-semibold mt-0.5">
+                      Required before posting rides
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => {
+                    setEditingCar(!editingCar);
+                    // Re-seed form from latest user data when opening
+                    if (!editingCar) {
+                      setCarForm({
+                        car_make:   user?.car_make   || "",
+                        car_model:  user?.car_model  || "",
+                        car_year:   user?.car_year   || "",
+                        car_colour: user?.car_colour || "",
+                        car_plate:  user?.car_plate  || "",
+                      });
+                    }
+                  }}
+                  className="text-green-700 text-[12px] font-bold"
+                >
+                  {editingCar ? "Cancel" : hasCarDetails ? "Edit" : "Add ✚"}
+                </button>
               </div>
+ 
               {editingCar ? (
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
@@ -162,21 +175,69 @@ export default function ProfilePage() {
                     <input className="input" placeholder="LND 423 GH" value={carForm.car_plate} onChange={setCar("car_plate")} />
                   </div>
                   <div className="bg-gold-50 border border-gold-200 rounded-xl p-2.5">
-                    <p className="text-[11px] text-gold-700">🔒 These details stay hidden from riders until you accept their request.</p>
+                    <p className="text-[11px] text-gold-700">
+                      🔒 Car details stay hidden from riders until you accept their request.
+                    </p>
                   </div>
-                  <button onClick={saveCar} disabled={saving} className="btn-primary">{saving ? "Saving…" : "Save car details"}</button>
+                  <button onClick={saveCar} disabled={saving} className="btn-primary">
+                    {saving ? "Saving…" : "Save car details"}
+                  </button>
                 </div>
-              ) : user?.car_make ? (
-                <div>
-                  <p className="font-bold text-[15px]">{user.car_make} {user.car_model} {user.car_year}</p>
-                  <p className="text-[13px] text-gray-500">{user.car_colour}</p>
-                  <p className="text-[13px] font-mono font-bold text-green-700 mt-1">{user.car_plate}</p>
+              ) : hasCarDetails ? (
+                /* Display saved car details */
+                <div className="bg-green-700 rounded-xl p-4 text-white">
+                  <p className="font-black text-[17px]">
+                    {user.car_make} {user.car_model} {user.car_year}
+                  </p>
+                  <p className="text-white/70 text-[13px] mt-0.5 capitalize">{user.car_colour}</p>
+                  <div className="bg-white/15 rounded-lg mt-2 py-1.5 px-3 inline-block">
+                    <p className="font-black text-[16px] tracking-[0.12em]">{user.car_plate}</p>
+                  </div>
                 </div>
               ) : (
-                <p className="text-[13px] text-gray-400">No car details set. Add them so you can post rides.</p>
+                <p className="text-[13px] text-gray-400">
+                  No car details yet. Add them above — you won't be able to post rides without them.
+                </p>
               )}
             </div>
           )}
+ 
+          {/* Emergency contact */}
+          <div className="card p-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="section-label mb-0">🆘 Emergency contact</p>
+              <button
+                onClick={() => setEditingSOS(!editingSOS)}
+                className="text-green-700 text-[12px] font-bold"
+              >
+                {editingSOS ? "Cancel" : user?.emergency_contact_name ? "Edit" : "Add ✚"}
+              </button>
+            </div>
+            {editingSOS ? (
+              <div className="space-y-3">
+                <div>
+                  <label className="label">Contact name</label>
+                  <input className="input" placeholder="e.g. Mum" value={sosForm.name} onChange={setSOS("name")} />
+                </div>
+                <div>
+                  <label className="label">Phone number</label>
+                  <input className="input" type="tel" placeholder="08023456789" value={sosForm.phone} onChange={setSOS("phone")} />
+                </div>
+                <button onClick={saveSOS} disabled={saving} className="btn-primary">
+                  {saving ? "Saving…" : "Save contact"}
+                </button>
+              </div>
+            ) : user?.emergency_contact_name ? (
+              <div>
+                <p className="font-bold text-[14px]">{user.emergency_contact_name}</p>
+                <p className="text-[13px] text-gray-500">{user.emergency_contact_phone}</p>
+              </div>
+            ) : (
+              <p className="text-[13px] text-gray-400">
+                No emergency contact set. Used for the silent SOS alert during rides.
+              </p>
+            )}
+          </div>
  
           {/* Account info */}
           <div className="card p-4 mb-4">
@@ -190,20 +251,20 @@ export default function ProfilePage() {
               <span className="font-semibold text-[13px] capitalize">{user?.role}</span>
             </div>
             <div className="info-row">
-              <span className="text-gray-400 text-[13px]">NIN verified</span>
-              <span className={`text-[13px] font-bold ${user?.is_verified ? "text-green-700" : "text-gray-400"}`}>
-                {user?.is_verified ? "✓ Yes" : "Pending"}
+              <span className="text-gray-400 text-[13px]">Member since</span>
+              <span className="font-semibold text-[13px]">
+                {user?.created_at ? new Date(user.created_at).toLocaleDateString("en-NG", { month: "short", year: "numeric" }) : "—"}
               </span>
             </div>
             <div className="info-row">
               <span className="text-gray-400 text-[13px]">Phone verified</span>
-              <span className={`text-[11px] font-bold ${user?.phone_verified ? "text-green-700" : "text-gray-400"}`}>
-                {user?.phone_verified ? "✓ Yes" : "OTP module — added later via Termii"}
+              <span className="text-[11px] font-bold text-gray-400">
+                Added later via Termii OTP
               </span>
             </div>
           </div>
  
-          <button onClick={logout} className="btn-secondary text-red-600 border-red-200 mb-4">
+          <button onClick={logout} className="btn-secondary mb-4" style={{ color: "#dc2626", borderColor: "#fca5a5" }}>
             Sign out
           </button>
         </div>

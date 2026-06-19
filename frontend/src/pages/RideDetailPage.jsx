@@ -4,6 +4,7 @@ import { ridesAPI } from "../api";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { formatNaira, apiError } from "../utils/helpers";
+import { Stars } from "../components/common/stars";
 import Avatar from "../components/common/avatar";
 import TopBar from "../components/layout/topbar";
 import BottomNav from "../components/layout/bottomNav";
@@ -38,8 +39,10 @@ export default function RideDetailPage() {
  
   async function sendRequest() {
     setRequesting(true);
+    console.log("Sending request with drop-off note:", dropOff);
+    console.log("Ride ID:", rideId);
     try {
-      await ridesAPI.requestToJoin(rideId, { drop_off_note: dropOff });
+      await ridesAPI.requestToJoin(rideId, { ride_id: rideId, drop_off_note: dropOff });
       showToast("Request sent! The driver will be in touch.");
       navigate("/requests");
     } catch (err) {

@@ -29,6 +29,8 @@ export const ridesAPI = {
   declineRequest: (reqId)     => api.post(`/rides/requests/${reqId}/decline`),
   cancelRequest:  (reqId)     => api.post(`/rides/requests/${reqId}/cancel`),
   completeRide:   (rideId)    => api.post(`/rides/${rideId}/complete`),
+  startRide:      (rideId)    => api.post(`/rides/${rideId}/start`),
+  cancelRide:     (rideId)    => api.post(`/rides/${rideId}/cancel`),
 };
  
 // ─── Messages ─────────────────────────────────────────────────────────────────

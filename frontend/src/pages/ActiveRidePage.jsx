@@ -134,14 +134,13 @@ export default function ActiveRidePage() {
           </p>
         </div>
  
-        {/* Complete ride */}
-        <button
-          onClick={completeRide}
-          disabled={completing}
-          className="btn-primary"
-        >
-          {completing ? "Ending ride…" : "✅ End ride & rate driver"}
-        </button>
+        {/* Rider view — driver ends the ride from their dashboard */}
+        <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+          <p className="text-[12px] text-green-700">
+            🚗 The driver will end the ride from their dashboard when you arrive.
+            You'll then be prompted to rate your experience.
+          </p>
+        </div>
       </div>
  
       {/* Silent SOS button — double-tap */}
@@ -149,3 +148,4 @@ export default function ActiveRidePage() {
     </div>
   );
 }
+ 
