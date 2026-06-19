@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { formatNaira, apiError } from "../utils/helpers";
 import Avatar from "../components/common/avatar";
-import TopBar from "../components/layout/topBar";
+import TopBar from "../components/layout/topbar";
 import BottomNav from "../components/layout/bottomNav";
  
 export default function RideDetailPage() {

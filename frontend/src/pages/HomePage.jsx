@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ridesAPI } from "../api";
-import RideCard from "../components/rides/rideCard";
+import RideCard from "../components/rides/ridecard";
 import BottomNav from "../components/layout/bottomNav";
 import Avatar from "../components/common/avatar";
  

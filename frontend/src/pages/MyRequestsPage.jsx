@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ridesAPI } from "../api";
 import { useToast } from "../context/ToastContext";
 import { apiError, formatNaira } from "../utils/helpers";
-import TopBar from "../components/layout/topBar";
+import TopBar from "../components/layout/topbar";
 import BottomNav from "../components/layout/bottomNav";
  
 const STATUS_STYLE = {

@@ -3,10 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ridesAPI } from "../api";
 import { useToast } from "../context/ToastContext";
 import { apiError } from "../utils/helpers";
-import Avatar from "../components/common/Avatar";
-import { Stars } from "../components/common/Stars";
-import TopBar from "../components/layout/TopBar";
-import BottomNav from "../components/layout/BottomNav";
+import Avatar from "../components/common/avatar";
+import { Stars } from "../components/common/stars";
+import TopBar from "../components/layout/topbar";
+import BottomNav from "../components/layout/bottomNav";
  
 export default function RideRequestsPage() {
   const { rideId }        = useParams();
