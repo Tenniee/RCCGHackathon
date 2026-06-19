@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import Avatar from "../common/Avatar";
-import { Stars } from "../common/Stars";
+import Avatar from "../common/avatar";
+import { Stars } from "../common/stars";
 import { formatNaira, seatsLabel } from "../../utils/helpers";
  
 export default function RideCard({ ride }) {
