@@ -7,7 +7,7 @@ import { apiError } from "../utils/helpers";
 import Avatar from "../components/common/avatar";
 import { Stars } from "../components/common/stars";
 import TopBar from "../components/layout/topBar";
-import BottomNav from "../components/layout/BottomNav";
+import BottomNav from "../components/layout/bottomNav";
  
 export default function ProfilePage() {
   const navigate          = useNavigate();
