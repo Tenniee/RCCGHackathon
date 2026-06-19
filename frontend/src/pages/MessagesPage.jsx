@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { timeAgo } from "../utils/helpers";
 import Avatar from "../components/common/Avatar";
 import TopBar from "../components/layout/TopBar";
-import BottomNav from "../components/layout/BottomNav";
+import BottomNav from "../components/layout/bottomNav";
  
 export default function MessagesPage() {
   const navigate        = useNavigate();
