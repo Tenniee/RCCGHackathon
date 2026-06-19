@@ -18,7 +18,7 @@ class Settings(BaseSettings):
  
     # App
     APP_ENV: str = "development"
-    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000, https://rccg-hackathon-coral.vercel.app/signup"
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000, https://rccg-hackathon-coral.vercel.app"
  
     # OTP optional module
     OTP_ENABLED: bool = False
