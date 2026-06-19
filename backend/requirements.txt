@@ -1,0 +1,37 @@
+# ── Python 3.13 compatible requirements ───────────────────────────────────────
+#
+# pydantic 2.7.1 → 2.10.6
+#   2.7.x has no pre-built cp313 wheel; pip tries Rust compilation which
+#   requires Visual Studio Build Tools. 2.10+ ships cp313 wheels.
+#
+# pydantic-settings 2.2.1 → 2.7.1
+#   Must stay in sync with pydantic major version.
+#
+# psycopg2-binary 2.9.9 → 2.9.10
+#   First release with a pre-built cp313-win_amd64 wheel.
+#
+# fastapi 0.111.0 → 0.115.5
+#   Compatible with pydantic 2.10.
+#
+# bcrypt PINNED to 4.0.1  ← IMPORTANT
+#   passlib 1.7.4 (the last stable release) uses bcrypt.__about__ internally.
+#   bcrypt 4.1+ removed __about__, causing:
+#     AttributeError: module 'bcrypt' has no attribute '__about__'
+#   bcrypt 4.0.1 is the last version fully compatible with passlib 1.7.4.
+#   Do NOT let pip upgrade bcrypt beyond 4.0.x while using passlib.
+# ──────────────────────────────────────────────────────────────────────────────
+ 
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+sqlalchemy==2.0.36
+alembic==1.14.0
+psycopg2-binary==2.9.10
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+python-multipart==0.0.12
+python-dotenv==1.0.1
+httpx==0.27.0
+cloudinary==1.40.0
+pydantic[email]==2.10.6
+pydantic-settings==2.7.1

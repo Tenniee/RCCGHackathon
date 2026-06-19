@@ -1,0 +1,11 @@
+{
+  "python-envs.pythonProjects": [
+    {
+      "path": "frontend/src",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
+    }
+  ],
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore"
+}
