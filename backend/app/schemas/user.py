@@ -71,9 +71,9 @@ class DocumentUploadResponse(BaseModel):
  
 class CarDetailsRequest(BaseModel):
     car_make: str
-    car_model: str
-    car_year: int
-    car_colour: str
+    car_model: Optional[str] = None
+    car_year: Optional[int] = None   # optional — year field can be blank
+    car_colour: Optional[str] = None
     car_plate: str
  
  
@@ -114,3 +114,4 @@ class DriverWithCarPublic(UserPublic):
     car_colour: Optional[str]
     car_plate: Optional[str]
     car_photo_url: Optional[str]
+ 
