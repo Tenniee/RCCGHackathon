@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { messagesAPI } from "../api";
 import { useAuth } from "../context/AuthContext";
 import { timeAgo } from "../utils/helpers";
-import Avatar from "../components/common/Avatar";
-import TopBar from "../components/layout/TopBar";
+import Avatar from "../components/common/avatar";
+import TopBar from "../components/layout/topbar";
 import BottomNav from "../components/layout/bottomNav";
  
 export default function MessagesPage() {

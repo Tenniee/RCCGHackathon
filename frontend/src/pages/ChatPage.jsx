@@ -4,8 +4,8 @@ import { messagesAPI } from "../api";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { timeAgo, apiError } from "../utils/helpers";
-import Avatar from "../components/common/Avatar";
-import TopBar from "../components/layout/TopBar";
+import Avatar from "../components/common/avatar";
+import TopBar from "../components/layout/topbar";
  
 export default function ChatPage() {
   const { threadId }      = useParams();

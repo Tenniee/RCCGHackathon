@@ -3,9 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ridesAPI } from "../api";
 import { useToast } from "../context/ToastContext";
 import { apiError } from "../utils/helpers";
-import Avatar from "../components/common/Avatar";
+import Avatar from "../components/common/avatar";
 import SOSButton from "../components/common/SOSButton";
-import TopBar from "../components/layout/TopBar";
+import TopBar from "../components/layout/topBar";
  
 export default function ActiveRidePage() {
   const { requestId }     = useParams();
