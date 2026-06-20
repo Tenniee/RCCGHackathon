@@ -12,15 +12,31 @@ class RideRequestCreate(BaseModel):
     drop_off_note: Optional[str] = None
  
  
+class RideSummary(BaseModel):
+    # Minimal ride info nested inside RideRequestResponse.
+    # Lets the frontend read ride.status (in_progress/completed/cancelled)
+    # without a separate GET /rides/{id} call.
+    id: int
+    origin: str
+    destination: str
+    departure_time: str
+    cost_per_rider: float
+    status: str          # open | full | in_progress | completed | cancelled
+    driver: UserPublic
+ 
+    model_config = {"from_attributes": True}
+ 
+ 
 class RideRequestResponse(BaseModel):
     id: int
     ride_id: int
-    status: str          # plain str — avoids importing RequestStatus from models
+    status: str
     drop_off_note: Optional[str]
     meetup_point: Optional[str]
     thread_id: Optional[int]
     created_at: datetime
     rider: UserPublic
+    ride: Optional[RideSummary] = None   # ← nested ride so frontend sees ride.status
  
     model_config = {"from_attributes": True}
  
@@ -113,3 +129,4 @@ class RatingResponse(BaseModel):
     created_at: datetime
  
     model_config = {"from_attributes": True}
+ 
