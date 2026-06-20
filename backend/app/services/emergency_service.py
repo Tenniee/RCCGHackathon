@@ -78,19 +78,34 @@ def resolve_alert(db: Session, alert_id: int, admin_user: User, note: str) -> Em
 # ─── Rating service ───────────────────────────────────────────────────────────
  
 def submit_rating(db: Session, rater: User, payload: RatingCreate) -> Rating:
-    # Ensure the ride request exists and the rater was involved
-    req = db.query(RideRequest).filter(RideRequest.id == payload.ride_request_id).first()
+    from sqlalchemy.orm import joinedload
+    from app.models.ride import Ride
+ 
+    # Eagerly load the ride so req.ride is always populated
+    req = (
+        db.query(RideRequest)
+        .options(joinedload(RideRequest.ride))
+        .filter(RideRequest.id == payload.ride_request_id)
+        .first()
+    )
     if not req:
         raise HTTPException(status_code=404, detail="Ride request not found.")
  
+    if not req.ride:
+        raise HTTPException(status_code=404, detail="Ride not found for this request.")
+ 
     driver_id = req.ride.driver_id
-    rider_id = req.rider_id
+    rider_id  = req.rider_id
  
     if rater.id not in (driver_id, rider_id):
         raise HTTPException(status_code=403, detail="You were not part of this ride.")
  
+    # Allow rating once request is accepted — ride may be in_progress or completed
     if req.status != RequestStatus.accepted:
-        raise HTTPException(status_code=409, detail="Can only rate completed / accepted rides.")
+        raise HTTPException(
+            status_code=409,
+            detail=f"Cannot rate — request status is '{req.status}'. Must be accepted."
+        )
  
     # Prevent duplicate ratings
     existing = db.query(Rating).filter(

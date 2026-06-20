@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-
+ 
 from app.core.database import get_db
 from app.core.security import get_current_verified_user
 from app.models.user import User
@@ -9,12 +9,12 @@ from app.schemas.rides_etc import (
     RatingCreate, RatingResponse,
 )
 from app.services.emergency_service import trigger_emergency_alert, submit_rating
-
+ 
 router = APIRouter(tags=["Emergency & Ratings"])
-
-
+ 
+ 
 # ─── Emergency alert ──────────────────────────────────────────────────────────
-
+ 
 @router.post(
     "/emergency/alert",
     response_model=EmergencyAlertResponse,
@@ -27,24 +27,24 @@ def trigger_sos(
 ):
     """
     Triggered when a rider double-taps the SOS button during an active ride.
-
+ 
     What happens:
       1. An EmergencyAlert row is created with a snapshot of the ride
          (driver name, car details, destination, meetup point).
       2. The rider's trusted contact details are copied into the alert row.
       3. In-app notification sent to the trusted contact if they are a user.
       4. Alert is flagged for admin review.
-
+ 
     Silent — no sound or visible indication is shown to the driver.
-
+ 
     Coming later:
       - Live GPS coordinates attached to alert  → Google Maps SDK
       - SMS to trusted contact                  → Termii SMS API
     """
     alert = trigger_emergency_alert(db, current_user, payload)
     return alert
-
-
+ 
+ 
 @router.get("/emergency/my-alerts", response_model=list[EmergencyAlertResponse])
 def my_alerts(
     db: Session = Depends(get_db),
@@ -58,3 +58,32 @@ def my_alerts(
         .order_by(EmergencyAlert.created_at.desc())
         .all()
     )
+ 
+ 
+# ─── Ratings ──────────────────────────────────────────────────────────────────
+ 
+@router.post(
+    "/ratings",
+    response_model=RatingResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def rate_ride(
+    payload: RatingCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_verified_user),
+):
+    """
+    Submit a post-ride rating (1–5 stars).
+    Both riders can rate drivers AND drivers can rate riders.
+    The ratee's average_rating on their User record is updated immediately.
+    One rating per person per ride request — duplicates are rejected.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(
+        f"Rating attempt — rater: {current_user.id}, "
+        f"ride_request_id: {payload.ride_request_id}, "
+        f"ratee_id: {payload.ratee_id}, score: {payload.score}"
+    )
+    return submit_rating(db, current_user, payload)
+ 
