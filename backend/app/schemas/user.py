@@ -102,6 +102,16 @@ class UserPublic(BaseModel):
     emergency_contact_phone: Optional[str]
     created_at: datetime
  
+    # Car fields — always returned so the frontend can display/react to them
+    # These are populated on the driver's own profile responses.
+    # They are still hidden from OTHER users unless their request is accepted
+    # (that gate is enforced in build_ride_detail_response, not here).
+    car_make:   Optional[str] = None
+    car_model:  Optional[str] = None
+    car_year:   Optional[int] = None
+    car_colour: Optional[str] = None
+    car_plate:  Optional[str] = None
+ 
     model_config = {"from_attributes": True}
  
  
@@ -114,4 +124,3 @@ class DriverWithCarPublic(UserPublic):
     car_colour: Optional[str]
     car_plate: Optional[str]
     car_photo_url: Optional[str]
- 
